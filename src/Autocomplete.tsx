@@ -4,12 +4,14 @@ import classNames from 'classnames';
 import { Person } from './types/Person';
 
 interface AutocompleteProps {
+  onChange: (str: string) => void;
   people: Person[];
   debounceDelay: number;
   onSelected: (person: Person) => void;
 }
 
 export const Autocomplete: React.FC<AutocompleteProps> = ({
+  onChange,
   people,
   debounceDelay,
   onSelected,
@@ -21,7 +23,7 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const blurTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Debounced filter function
+
   const debouncedFilter = useRef(
     debounce((value: string) => {
       setSortedArray(
@@ -32,7 +34,6 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
     }, debounceDelay),
   );
 
-  // Update debounce delay if it changes
   React.useEffect(() => {
     debouncedFilter.current = debounce((value: string) => {
       setSortedArray(
@@ -42,7 +43,6 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
       );
     }, debounceDelay);
 
-    // Cleanup on unmount
     return () => {
       debouncedFilter.current.cancel();
     };
@@ -50,6 +50,7 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
+    onChange(event.target.value);
     debouncedFilter.current(event.target.value);
   };
 
@@ -75,11 +76,7 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
             setIsInputActive(true);
           }}
           ref={inputRef}
-          onBlur={() => {
-            blurTimeout.current = setTimeout(() => {
-              setIsInputActive(false);
-            }, 100);
-          }}
+          onBlur={() => {setIsInputActive(false)}}
           onChange={handleInputChange}
           type="text"
           placeholder="Enter a part of the name"
@@ -119,13 +116,18 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
         )}
         {sortedArray.length === 0 && (
           <div
-            className="notification is-danger is-light mt-3 is-align-self-flex-start"
+            className="
+            dropdown-content
+            notification 
+            is-danger 
+            is-light 
+            is-rounded 
+            mt-3 
+            is-align-self-flex-start"
             role="alert"
             data-cy="no-suggestions-message"
           >
-            <p className="has-text-danger">
-              No matching suggestions
-            </p>
+            <p className="has-text-danger">No matching suggestions</p>
           </div>
         )}
       </div>

@@ -4,11 +4,19 @@ import { peopleFromServer } from './data/people';
 import { Person } from './types/Person';
 import { Autocomplete } from '../src/Autocomplete';
 
+const DEFAULT_TITLE = 'No selected person';
+
 export const App: React.FC = () => {
-  const [title, setTitle] = useState('No selected person');
+  const [title, setTitle] = useState(DEFAULT_TITLE);
 
   function handleSelected(person: Person) {
     setTitle(`${person.name} (${person.born} - ${person.died})`);
+  }
+
+  function handleChange(str: string) {
+    if(str !== title) {
+      setTitle(DEFAULT_TITLE);
+    }
   }
 
   return (
@@ -18,6 +26,7 @@ export const App: React.FC = () => {
           {title}
         </h1>
         <Autocomplete
+          onChange={handleChange}
           people={peopleFromServer}
           debounceDelay={300}
           onSelected={handleSelected}
